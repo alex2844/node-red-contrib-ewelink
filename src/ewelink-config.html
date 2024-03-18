@@ -1,0 +1,136 @@
+<style>
+.node-config-input-devices-container-row .red-ui-editableList-header {
+	padding-left: 28px;
+}
+</style>
+<script type="text/markdown" data-help-name="ewelink-config">
+Configuration node.
+
+### References
+
+ - [ewelink dev console](https://dev.ewelink.cc/)
+</script>
+<script type="text/html" data-template-name="ewelink-config">
+	<div class="form-row">
+		<label for="node-config-input-name"><i class="fa fa-pencil"></i> Name</label>
+		<input type="text" id="node-config-input-name" />
+	</div>
+	<fieldset>
+		<legend>Application Authentication</legend>
+		<div class="form-row">
+			<label for="node-config-input-appId"><i class="fa fa-user"></i> App ID</label>
+			<input type="text" id="node-config-input-appId">
+		</div>
+		<div class="form-row">
+			<label for="node-config-input-appSecret"><i class="fa fa-key"></i> App Secret</label>
+			<input type="password" id="node-config-input-appSecret">
+		</div>
+		<div class="form-row">
+			<label for="node-config-input-redirectUrl"><i class="fa fa-fw fa-list"></i> Redirect</label>
+			<input type="text" id="node-config-input-redirectUrl">
+		</div>
+	</fieldset>
+	<fieldset>
+		<legend>Local devices</legend>
+		<div class="form-row node-config-input-devices-container-row">
+			<ol id="node-config-input-devices-container"></ol>
+		</div>
+	</fieldset>
+</script>
+<script type="text/javascript">
+	RED.nodes.registerType('ewelink-config', {
+		category: 'config',
+		defaults: {
+			name: { value: '' }
+		},
+		credentials: {
+			appId: {
+				type: 'text',
+				validate: function(val) {
+					return (!$('#node-config-input-appId').val() === !$('#node-config-input-appSecret').val())
+				}
+			},
+			appSecret: {
+				type: 'password',
+				validate: function(val) {
+					return (!$('#node-config-input-appId').val() === !$('#node-config-input-appSecret').val())
+				}
+			},
+			redirectUrl: { type: 'text' },
+			devices: { type: 'text' }
+		},
+		label: function() {
+			return this.name || 'eWeLink';
+		},
+		oneditprepare: function() {
+			$('#node-config-input-appId').on('input', () => {
+				const appSecret = $('#node-config-input-appSecret').val();
+				if (appSecret === '__PWRD__')
+					$('#node-config-input-appSecret').val('');
+			});
+			$('#node-config-input-redirectUrl').attr('placeholder', () => {
+				let pathname = document.location.pathname;
+				if (pathname.slice(-1) != '/')
+					pathname += '/';
+				return location.protocol+'//'+location.hostname+(location.port?':'+location.port:'')+pathname+'ewelink/callback';
+			});
+			$('#node-config-input-devices-container').css('min-height', '150px').editableList({
+				addItem: function(container, i, opt) {
+					container.css({
+						overflow: 'hidden',
+						whiteSpace: 'nowrap'
+					});
+					let fragment = document.createDocumentFragment();
+					let row = $('<div/>', { style: 'display:flex;' }).appendTo(fragment);
+					$('<input/>', {
+						class: 'node-config-input-device-device-id',
+						type: 'text',
+						style: 'width: 25%',
+						value: opt.deviceid
+					}).appendTo(row);
+					$('<input/>', {
+						class: 'node-config-input-device-device-key',
+						type: 'text',
+						style: 'width: 42%; margin: 0 2%',
+						value: opt.devicekey
+					}).appendTo(row);
+					$('<input/>', {
+						class: 'node-config-input-device-device-ip',
+						type: 'text',
+						style: 'width: 29%',
+						value: opt.ip
+					}).appendTo(row);
+					container[0].appendChild(fragment);
+				},
+				header: $('<div>').append($.parseHTML([
+					'<div style="width:25%; display: inline-block">ID</div>',
+					'<div style="width:42%; display: inline-block; margin: 0 2px;">Key</div>',
+					'<div style="width:29%; display: inline-block">IP</div>'
+				].join(''))),
+				removable: true,
+				sortable: true
+			});
+			let devices = this.credentials.devices;
+			if (!devices)
+				devices = [];
+			devices.forEach(device => $('#node-config-input-devices-container').editableList('addItem', device));
+		},
+		oneditsave: function() {
+			this.credentials.devices = [];
+			$('#node-config-input-devices-container').editableList('items').each((i, el) => {
+				const deviceid = $(el).find('.node-config-input-device-device-id').val();
+				const devicekey = $(el).find('.node-config-input-device-device-key').val();
+				const ip = $(el).find('.node-config-input-device-device-ip').val();
+				if (deviceid && devicekey && ip)
+					this.credentials.devices.push({ deviceid, devicekey, ip });
+			});
+			const appId = $('#node-config-input-appId').val();
+			const appSecret = $('#node-config-input-appSecret').val();
+			const redirectUrl = $('#node-config-input-redirectUrl').val() || $('#node-config-input-redirectUrl').attr('placeholder');
+			if (appId && appSecret && (appSecret !== '__PWRD__')) {
+				const url = 'ewelink/auth?id='+this.id+'&appId='+appId+'&appSecret='+appSecret+'&redirectUrl='+encodeURIComponent(redirectUrl);
+				window.open(url, '_blank');
+			}
+		}
+	});
+</script>

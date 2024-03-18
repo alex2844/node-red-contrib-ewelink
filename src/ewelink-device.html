@@ -1,0 +1,88 @@
+<script type="text/markdown" data-help-name="ewelink-device">
+Information or changing device parameters
+
+### Inputs
+
+: *payload* (object) : can be used to pass a device object.
+
+
+### Outputs
+
+: payload (object) : The status of the device after executing a command received.
+: *topic* (string) : Passed from input data
+
+### Details
+
+`Config` - Configuration node.
+
+`Name` - Name node.
+
+`Device ID` - "deviceid" - can be obtained from the result of the "devices" node.
+
+`Params` - parameters transferred to the device.
+If not passed, we will get the current parameters.
+
+`Topic` - it will be added to the output.
+</script>
+<script type="text/html" data-template-name="ewelink-device">
+	<div class="form-row">
+		<label for="node-input-settings"><i class="fa fa-cog"></i> Config</label>
+		<input id="node-input-settings" />
+	</div>
+	<div class="form-row">
+		<label for="node-input-name"><i class="fa fa-pencil"></i> Name</label>
+		<input type="text" id="node-input-name" />
+	</div>
+	<div class="form-row">
+		<label for="node-input-deviceid"><i class="fa fa-tasks"></i> Device ID</label>
+		<input type="text" id="node-input-deviceid">
+		<input type="hidden" id="node-input-deviceidType">
+	</div>
+	<div class="form-row">
+		<label for="node-input-params"><i class="fa fa-power-off"></i> Params</label>
+		<input type="text" id="node-input-params">
+		<input type="hidden" id="node-input-paramsType">
+	</div>
+	<div class="form-row">
+		<label for="node-input-topic"><i class="fa fa-envelope-o"></i> Topic</label>
+		<input type="text" id="node-input-topic">
+		<input type="hidden" id="node-input-topicType">
+	</div>
+</script>
+<script type="text/javascript">
+	RED.nodes.registerType('ewelink-device', {
+		category: 'eWeLink',
+		defaults: {
+			settings: { value: null, required: true, type: 'ewelink-config' },
+			name: { value: '' },
+			deviceid: { value: 'deviceid' },
+			deviceidType: { value: 'msg' },
+			params: { value: 'params' },
+			paramsType: { value: 'msg' },
+			topic: { value: 'topic' },
+			topicType: { value: 'msg' }
+		},
+		icon: 'font-awesome/fa-power-off',
+		inputs: 1,
+		outputs: 1,
+		color: '#1890ff',
+		paletteLabel: 'Device',
+		label: function() {
+			return this.name || 'Device';
+		},
+		oneditprepare: function() {
+			$('#node-input-deviceid').typedInput({
+				types: [ 'str', 'msg' ],
+				typeField: '#node-input-deviceidType'
+			});
+			$('#node-input-params').typedInput({
+				types: [ 'json', 'msg' ],
+				typeField: '#node-input-paramsType'
+			});
+			$('#node-input-topic').typedInput({
+				types: [ 'str','msg','flow','global' ],
+				typeField: '#node-input-topicType'
+			});
+		}
+	});
+</script>
