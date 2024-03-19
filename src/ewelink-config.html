@@ -95,10 +95,10 @@ Configuration node.
 						value: opt.devicekey
 					}).appendTo(row);
 					$('<input/>', {
-						class: 'node-config-input-device-device-ip',
+						class: 'node-config-input-device-device-address',
 						type: 'text',
 						style: 'width: 29%',
-						value: opt.ip
+						value: opt.address
 					}).appendTo(row);
 					container[0].appendChild(fragment);
 				},
@@ -120,9 +120,9 @@ Configuration node.
 			$('#node-config-input-devices-container').editableList('items').each((i, el) => {
 				const deviceid = $(el).find('.node-config-input-device-device-id').val();
 				const devicekey = $(el).find('.node-config-input-device-device-key').val();
-				const ip = $(el).find('.node-config-input-device-device-ip').val();
-				if (deviceid && devicekey && ip)
-					this.credentials.devices.push({ deviceid, devicekey, ip });
+				const address = $(el).find('.node-config-input-device-device-address').val();
+				if (deviceid && devicekey && address)
+					this.credentials.devices.push({ deviceid, devicekey, address });
 			});
 			const appId = $('#node-config-input-appId').val();
 			const appSecret = $('#node-config-input-appSecret').val();

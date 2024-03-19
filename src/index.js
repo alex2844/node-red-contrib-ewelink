@@ -2,6 +2,7 @@
 
 const EwelinkApi = require('ewelink-api-next').default;
 const crypto = require('crypto');
+const net = require('net');
 
 class Ewelink {
 	constructor(credentials) {
@@ -55,11 +56,11 @@ class Ewelink {
 	getClient() {
 		return this.client;
 	}
-	setStatus({ deviceid, devicekey, ip }, params) {
+	setStatus({ deviceid, devicekey, address }, params) {
 		if (this.type === 'web')
 			return this.getClient().device.setThingStatus({ id: deviceid, params }).then(res => {
 				if (res.error === 0)
-					return { deviceid, devicekey, ip, params };
+					return { deviceid, devicekey, address, params };
 				else
 					return Promise.reject({
 						message: res.msg,
@@ -67,13 +68,13 @@ class Ewelink {
 					});
 			});
 		if (this.type === 'lan') {
-			if (!ip)
+			if (!address)
 				return Promise.reject({
-					message: '"ip" is not allowed to be empty',
+					message: '"address" is not allowed to be empty',
 					code: 404
 				});
 			return this.getClient().request.request({
-				url: 'http://'+ip+':8081/zeroconf/switch',
+				url: 'http://'+address+':8081/zeroconf/switch',
 				method: 'post',
 				headers: { 'Connection': 'close' },
 				data: this.encrypt({
@@ -85,7 +86,7 @@ class Ewelink {
 			}).catch(err => {
 				if (err.errno === -104)
 					return {
-						deviceid, devicekey, ip, params,
+						deviceid, devicekey, address, params,
 						error: 0
 					};
 				else
@@ -95,7 +96,7 @@ class Ewelink {
 					};
 			}).then(res => {
 				if (res.error === 0)
-					return { deviceid, devicekey, ip, params };
+					return { deviceid, devicekey, address, params };
 				else
 					return Promise.reject({
 						message: res.msg,
@@ -146,7 +147,7 @@ class Ewelink {
 							params, devicekey,
 							deviceid: server.txt.id,
 							port: server.port,
-							ip: server.addresses[0]
+							address: server.addresses.find(address => net.isIPv4(address))
 						});
 					}
 				});
@@ -177,7 +178,7 @@ class Ewelink {
 						params, devicekey,
 						deviceid: server.txt.id,
 						port: server.port,
-						ip: server.addresses[0]
+						address: server.addresses.find(address => net.isIPv4(address))
 					});
 				});
 			});

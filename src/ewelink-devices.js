@@ -7,13 +7,13 @@ module.exports = RED => {
 			.then(payload => {
 				if (msg.payload) {
 					const devices = settings.getDevices();
-					payload.forEach(({ deviceid, devicekey, ip }) => {
-						if (deviceid && devicekey && ip) {
+					payload.forEach(({ deviceid, devicekey, address }) => {
+						if (deviceid && devicekey && address) {
 							const i = devices.findIndex(device => (device.deviceid === deviceid));
 							if (i !== -1)
-								devices[i] = { deviceid, devicekey, ip };
+								devices[i] = { deviceid, devicekey, address };
 							else
-								devices.push({ deviceid, devicekey, ip });
+								devices.push({ deviceid, devicekey, address });
 						}
 					});
 					settings.setDevices(devices);
