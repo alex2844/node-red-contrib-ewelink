@@ -6,6 +6,7 @@
 <script type="text/markdown" data-help-name="ewelink-config">
 Configuration node.
 
+
 ### References
 
  - [ewelink dev console](https://dev.ewelink.cc/)
@@ -32,6 +33,9 @@ Configuration node.
 	</fieldset>
 	<fieldset>
 		<legend>Local devices</legend>
+		<div class="form-tips node-config-input-devices-warn" style="margin-bottom: 1em; display: none;">
+			Update flow
+		</div>
 		<div class="form-row node-config-input-devices-container-row">
 			<ol id="node-config-input-devices-container"></ol>
 		</div>
@@ -110,10 +114,11 @@ Configuration node.
 				removable: true,
 				sortable: true
 			});
-			let devices = this.credentials.devices;
-			if (!devices)
-				devices = [];
-			devices.forEach(device => $('#node-config-input-devices-container').editableList('addItem', device));
+			$.getJSON('credentials/ewelink-config/'+this.id, ({ devices }) => {
+				if (JSON.stringify(devices||[]) !== JSON.stringify(this.credentials.devices||[]))
+					$('.node-config-input-devices-warn').show();
+				(devices || []).forEach(device => $('#node-config-input-devices-container').editableList('addItem', device));
+			});
 		},
 		oneditsave: function() {
 			this.credentials.devices = [];

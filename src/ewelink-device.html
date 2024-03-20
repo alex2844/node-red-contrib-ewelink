@@ -11,6 +11,7 @@ Information or changing device parameters
 : payload (object) : The status of the device after executing a command received.
 : *topic* (string) : Passed from input data
 
+
 ### Details
 
 `Config` - Configuration node.
@@ -23,6 +24,19 @@ Information or changing device parameters
 If not passed, we will get the current parameters.
 
 `Topic` - it will be added to the output.
+
+
+### Example
+`msg.payload`
+``` json
+{
+    "deviceid": "xxxxxxxxxx",
+    "devicekey": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "params": {
+        "switch": "on"
+    }
+}
+```
 </script>
 <script type="text/html" data-template-name="ewelink-device">
 	<div class="form-row">
